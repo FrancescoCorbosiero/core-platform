@@ -1,20 +1,11 @@
-import type { Metadata } from 'next'
-import './globals.css'
 import React from 'react'
 
-export const metadata: Metadata = {
-  title: 'Tereso - Educazione Finanziaria',
-  description: 'La tua piattaforma di educazione finanziaria',
-}
-
+/* Root layout is a pass-through. Each route group
+   ((frontend) and (payload)) provides its own <html> shell. */
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html lang="it">
-      <body>{children}</body>
-    </html>
-  )
+  return children
 }
