@@ -1,11 +1,20 @@
+import type { Metadata } from 'next'
 import React from 'react'
+import './globals.css'
 
-/* Root layout is a pass-through. Each route group
-   ((frontend) and (payload)) provides its own <html> shell. */
+export const metadata: Metadata = {
+  title: 'Tereso - Educazione Finanziaria',
+  description: 'La tua piattaforma di educazione finanziaria',
+}
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <html lang="it" suppressHydrationWarning>
+      <body>{children}</body>
+    </html>
+  )
 }
