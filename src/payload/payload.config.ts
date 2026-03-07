@@ -32,6 +32,14 @@ import { Media } from './collections/Media'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+if (!process.env.DATABASE_URI) {
+  throw new Error(
+    'DATABASE_URI environment variable is not set. ' +
+      'Copy .env.example to .env and configure your database connection. ' +
+      'Example: DATABASE_URI=postgresql://tereso:tereso@localhost:5432/tereso',
+  )
+}
+
 export default buildConfig({
   admin: {
     user: Users.slug,
