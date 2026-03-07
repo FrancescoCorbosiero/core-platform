@@ -1,0 +1,60 @@
+graph TB
+    subgraph CLIENT["🌐 CLIENT"]
+        BROWSER[Browser / Mobile Web]
+    end
+
+    subgraph VERCEL["▲ VERCEL"]
+        NEXTJS["Next.js App Router
+        • Pages & Components
+        • Server Components
+        • API Routes
+        • Middleware auth"]
+        PAYLOAD["Payload CMS v3
+        • Admin Panel Tereso
+        • Collections config
+        • Access control functions
+        • Auth B2C + B2B magic link"]
+    end
+
+    subgraph RAILWAY["🚂 RAILWAY"]
+        POSTGRES[("PostgreSQL
+        • Users & roles
+        • Content & plans
+        • Progress & tracking
+        • Gamification
+        • B2B companies")]
+    end
+
+    subgraph SERVICES["☁️ SERVIZI ESTERNI"]
+        STRIPE_SVC["Stripe
+        • Subscriptions
+        • Products & Prices
+        • Coupons
+        • Webhooks"]
+        MUX_SVC["Mux
+        • Video hosting
+        • Streaming adattivo
+        • Watch analytics
+        • DRM"]
+        RESEND_SVC["Resend
+        • Email transazionali
+        • Template TypeScript"]
+        SENTRY_SVC["Sentry
+        • Error tracking
+        • Session replay
+        • Performance"]
+        OTEL_SVC["OpenTelemetry
+        • Traces
+        • Metrics
+        • Logs"]
+    end
+
+    BROWSER <-->|HTTPS| NEXTJS
+    NEXTJS <--> PAYLOAD
+    PAYLOAD <-->|Queries| POSTGRES
+    NEXTJS <-->|SDK| STRIPE_SVC
+    NEXTJS <-->|SDK| MUX_SVC
+    NEXTJS <-->|SDK| RESEND_SVC
+    NEXTJS -.->|instrumentation| SENTRY_SVC
+    NEXTJS -.->|instrumentation| OTEL_SVC
+    STRIPE_SVC -->|Webhooks| NEXTJS

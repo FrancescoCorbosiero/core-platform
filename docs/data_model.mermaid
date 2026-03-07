@@ -1,0 +1,240 @@
+erDiagram
+    USERS {
+        uuid id PK
+        string email UK
+        string nickname
+        string first_name
+        string last_name
+        string phone
+        string address
+        enum role "b2c | b2b | hr | admin"
+        uuid company_id FK
+        enum plan "free | base | pro | trial"
+        timestamp trial_started_at
+        timestamp trial_ends_at
+        timestamp plan_expires_at
+        string stripe_customer_id
+        string stripe_subscription_id
+        string referral_code UK
+        timestamp last_login_at
+        timestamp created_at
+        boolean is_active
+    }
+
+    COMPANIES {
+        uuid id PK
+        string name
+        string vat_number
+        string sdi_code
+        timestamp contract_start
+        timestamp contract_end
+        int session_credits
+        int session_credits_used
+        boolean is_active
+    }
+
+    CATEGORIES {
+        uuid id PK
+        string name
+        string slug UK
+        string description
+        string image_url
+        int sort_order
+        boolean is_active
+    }
+
+    COURSES {
+        uuid id PK
+        uuid category_id FK
+        string title
+        string slug UK
+        string description
+        string image_url
+        enum min_plan "free | base | pro"
+        boolean is_active
+        int sort_order
+    }
+
+    PILLS {
+        uuid id PK
+        uuid course_id FK
+        string title
+        string description
+        string thumbnail_url
+        string mux_asset_id
+        string mux_playback_id
+        int duration_seconds
+        enum min_plan "free | base | pro"
+        int sort_order
+        boolean is_active
+    }
+
+    TOOLS {
+        uuid id PK
+        string title
+        string description
+        string file_url
+        enum min_plan "free | base | pro"
+        boolean is_active
+    }
+
+    GUIDES {
+        uuid id PK
+        string title
+        string description
+        string file_url
+        enum min_plan "free | base | pro"
+        boolean is_active
+    }
+
+    QUIZZES {
+        uuid id PK
+        uuid pill_id FK
+        uuid course_id FK
+        enum type "pill_quiz | course_final"
+        string title
+        boolean randomize_questions
+        boolean is_active
+    }
+
+    QUESTIONS {
+        uuid id PK
+        uuid quiz_id FK
+        string text
+        int sort_order
+        boolean randomize_options
+    }
+
+    OPTIONS {
+        uuid id PK
+        uuid question_id FK
+        string text
+        string subtext
+        boolean is_correct
+        int sort_order
+    }
+
+    COMPANY_COURSE_ACCESS {
+        uuid id PK
+        uuid company_id FK
+        uuid course_id FK
+        boolean is_active
+    }
+
+    USER_PROGRESS {
+        uuid id PK
+        uuid user_id FK
+        uuid pill_id FK
+        float watch_percentage
+        boolean completed
+        timestamp completed_at
+        timestamp last_watched_at
+    }
+
+    COURSE_COMPLETIONS {
+        uuid id PK
+        uuid user_id FK
+        uuid course_id FK
+        boolean completed
+        timestamp completed_at
+        int quiz_score
+    }
+
+    QUIZ_ATTEMPTS {
+        uuid id PK
+        uuid user_id FK
+        uuid quiz_id FK
+        int score_percentage
+        boolean passed
+        jsonb answers
+        timestamp attempted_at
+    }
+
+    CERTIFICATES {
+        uuid id PK
+        uuid user_id FK
+        uuid course_id FK
+        string file_url
+        timestamp issued_at
+    }
+
+    TERESI_LEDGER {
+        uuid id PK
+        uuid user_id FK
+        int amount
+        enum action "video | quiz | course | badge | referral | review | login | session"
+        uuid ref_id
+        timestamp created_at
+    }
+
+    BADGES {
+        uuid id PK
+        string name
+        string description
+        string image_url
+        enum condition_type "registration | video_count | quiz_count | course | review | tool | referral"
+        int condition_value
+    }
+
+    USER_BADGES {
+        uuid id PK
+        uuid user_id FK
+        uuid badge_id FK
+        timestamp earned_at
+    }
+
+    REVIEWS {
+        uuid id PK
+        uuid user_id FK
+        uuid course_id FK
+        int rating
+        string comment
+        boolean is_visible
+        timestamp created_at
+    }
+
+    COUPONS {
+        uuid id PK
+        string code UK
+        string stripe_coupon_id
+        enum type "percentage | fixed"
+        float value
+        timestamp expires_at
+        int max_uses_total
+        int max_uses_per_user
+        int uses_count
+        boolean is_active
+    }
+
+    REFERRALS {
+        uuid id PK
+        uuid referrer_id FK
+        uuid referred_id FK
+        timestamp created_at
+        boolean teresi_credited
+    }
+
+    USERS ||--o{ USER_PROGRESS : "tracks"
+    USERS ||--o{ COURSE_COMPLETIONS : "completes"
+    USERS ||--o{ QUIZ_ATTEMPTS : "attempts"
+    USERS ||--o{ CERTIFICATES : "earns"
+    USERS ||--o{ TERESI_LEDGER : "accumulates"
+    USERS ||--o{ USER_BADGES : "unlocks"
+    USERS ||--o{ REVIEWS : "writes"
+    USERS }o--|| COMPANIES : "belongs to"
+    COMPANIES ||--o{ COMPANY_COURSE_ACCESS : "has access"
+    CATEGORIES ||--o{ COURSES : "contains"
+    COURSES ||--o{ PILLS : "contains"
+    COURSES ||--o{ QUIZZES : "has"
+    COURSES ||--o{ COURSE_COMPLETIONS : "tracked by"
+    COURSES ||--o{ CERTIFICATES : "generates"
+    COURSES ||--o{ REVIEWS : "receives"
+    COURSES ||--o{ COMPANY_COURSE_ACCESS : "assigned via"
+    PILLS ||--o{ QUIZZES : "has"
+    PILLS ||--o{ USER_PROGRESS : "tracked by"
+    QUIZZES ||--o{ QUESTIONS : "contains"
+    QUIZZES ||--o{ QUIZ_ATTEMPTS : "attempted via"
+    QUESTIONS ||--o{ OPTIONS : "has"
+    BADGES ||--o{ USER_BADGES : "earned as"
+    REFERRALS }o--|| USERS : "referrer"
+    REFERRALS }o--|| USERS : "referred"

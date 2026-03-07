@@ -1,0 +1,76 @@
+flowchart TD
+    subgraph B2C["🧑 FLUSSO B2C"]
+        R[Registrazione email] --> T[Trial 3gg - accesso Pro]
+        T --> T_EXP{Trial scaduto?}
+        T_EXP -->|No| T
+        T_EXP -->|Sì| POPUP[Popup: Passa a Base / Pro]
+        POPUP -->|Acquista| PAY[Stripe checkout + coupon opzionale]
+        POPUP -->|Non ora| FREE[Piano Free]
+        PAY --> SUB[Abbonamento attivo]
+        SUB --> RENEW{Rinnovo automatico}
+        RENEW -->|Pagamento OK| SUB
+        RENEW -->|Pagamento fallito| BLOCK[Blocco immediato]
+        BLOCK --> FROZEN[Storico frozen - read only]
+        SUB --> UPG[Upgrade immediato + proration]
+        SUB --> DWN[Downgrade a fine periodo]
+        SUB --> CANCEL[Cancellazione - accesso a scadenza]
+    end
+
+    subgraph B2B["🏢 FLUSSO B2B"]
+        CONTRACT[Contratto aziendale + bonifico] --> TERESO_B2B[Tereso carica CSV email]
+        TERESO_B2B --> MAGIC[Magic link inviato a ogni dipendente]
+        MAGIC --> B2B_LOGIN[Login dipendente - company_id assegnato]
+        B2B_LOGIN --> B2B_CATALOG[Catalogo personalizzato per azienda]
+    end
+
+    subgraph CONTENT["📚 ACCESSO CONTENUTI"]
+        ACCESS{Piano utente?} -->|Free| F_CONTENT[15 pillole, 2 tool, 4 guide]
+        ACCESS -->|Base| B_CONTENT[40 pillole, 6 tool, 10 guide + download]
+        ACCESS -->|Pro| P_CONTENT[120 pillole, 20 tool, 20 guide + live + attestati]
+        ACCESS -->|B2B| B2B_CONTENT[Catalogo aziendale attivato da Tereso]
+        ACCESS -->|Trial| TRIAL_CONTENT[Tutto come Pro - no download - no live - no attestati]
+    end
+
+    subgraph TRACKING["📊 TRACKING E COMPLETAMENTO"]
+        WATCH[Utente guarda video] --> PCT{currentTime / duration >= 0.9?}
+        PCT -->|Sì| COMPLETE_V[Video completato + Mux validation]
+        COMPLETE_V --> TERESI_V[+10 Teresi real-time]
+        COMPLETE_V --> CHECK_COURSE{90% pillole corso completate?}
+        CHECK_COURSE -->|Sì| QUIZ_FINAL[Quiz finale disponibile]
+        QUIZ_FINAL --> QUIZ_PASS{Score >= 70%?}
+        QUIZ_PASS -->|Sì| COURSE_DONE[Corso completato]
+        COURSE_DONE --> TERESI_C[+50 Teresi real-time]
+        COURSE_DONE --> CERT[Certificato PDF generato - solo Pro e B2B]
+        COURSE_DONE --> BADGE_CHECK[Batch giornaliero: verifica badge]
+    end
+
+    subgraph ADMIN["⚙️ BACK OFFICE TERESO - Payload CMS"]
+        T_CONTENT[Gestione contenuti - pillole, tool, guide]
+        T_PLANS[Assegnazione contenuti per piano]
+        T_COUPON[Creazione coupon]
+        T_B2B_MGT[Gestione aziende B2B]
+        T_CATALOG[Attivazione corsi per azienda]
+        T_QUIZ[Creazione quiz - bozza → pubblicazione]
+        T_EDITORIAL[Blocchi editoriali manuali]
+        T_MODERATE[Moderazione recensioni]
+        T_USERS[Attivazione / disattivazione utenti]
+    end
+
+    subgraph STRIPE["💳 STRIPE WEBHOOKS"]
+        W1[invoice.payment_failed → blocco accesso]
+        W2[subscription.trial_will_end → downgrade Free]
+        W3[invoice.upcoming → email preavviso 15gg annuali]
+        W4[subscription.updated → aggiorna piano utente]
+        W5[subscription.deleted → freeze storico]
+    end
+
+    subgraph EMAIL["📧 RESEND - EMAIL TRANSAZIONALI"]
+        E1[Conferma registrazione]
+        E2[Trial in scadenza - giorno prima]
+        E3[Trial scaduto - downgrade Free]
+        E4[Conferma acquisto + ricevuta]
+        E5[Pagamento fallito - blocco]
+        E6[Preavviso rinnovo annuale - 15gg]
+        E7[Conferma cancellazione]
+        E8[Magic link attivazione B2B]
+    end
